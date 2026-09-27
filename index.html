@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laboratoriya: SaaS Kirish Nazorati (IAM) va Audit</title>
+  <style>
+    :root {
+      --primary: #0284c7;
+      --primary-dark: #0369a1;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #f59e0b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0369a1 0%, #0284c7 100%);
+      color: white;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      font-size: 1rem;
+      opacity: 0.95;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .meta-bar {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-bar span {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+    }
+
+    main {
+      max-width: 950px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04);
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      color: var(--primary-dark);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.15rem;
+      color: var(--text);
+      margin: 1.2rem 0 0.5rem 0;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-bottom: 0.8rem;
+    }
+
+    .note-box {
+      background: #eff6ff;
+      border-left: 4px solid var(--primary);
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .folder-tree {
+      background: #f1f5f9;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.95rem;
+      margin: 1rem 0;
+      line-height: 1.8;
+    }
+
+    .step-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.2rem;
+      margin-top: 1rem;
+      background: #fafafa;
+    }
+
+    .step-num {
+      background: var(--primary);
+      color: white;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      margin-right: 0.4rem;
+    }
+
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    li {
+      margin-bottom: 0.4rem;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      margin-left: 0;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.8rem;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .checklist-item:last-child {
+      border-bottom: none;
+    }
+
+    .checklist-item input {
+      margin-top: 0.3rem;
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .checklist-item label {
+      cursor: pointer;
+    }
+
+    .checklist-item strong {
+      color: var(--text);
+    }
+
+    .checklist-item p {
+      font-size: 0.88rem;
+      margin: 0.2rem 0 0 0;
+    }
+
+    /* Hisobot generatsiyasi */
+    .report-card {
+      background: #fdfefe;
+      border: 1px solid var(--primary);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+      color: var(--text);
+    }
+
+    .form-group input, .form-group textarea {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.7rem 1.4rem;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: var(--primary-dark);
+    }
+
+    #preview-area {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      border-radius: 6px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Laboratoriya Mashg'uloti: SaaS Kirish Nazorati (IAM) va Audit</h1>
+    <p>Google Workspace / Google Drive platformasi misolida ruxsatlarni sozlash va xavfsizlik tahlili</p>
+    <div class="meta-bar">
+      <span>⏱️ Vaqt: 2 akademik soat</span>
+      <span>💻 Talab: Brauzer (Chrome/Edge/Firefox)</span>
+      <span>🔒 Standart: Least Privilege & 2FA</span>
+    </div>
+  </header>
+
+  <main>
+    <!-- Maqsad -->
+    <section>
+      <h2>🎯 Ishning Maqsadi va Dolzarbligi</h2>
+      <p>
+        SaaS (Software as a Service) tizimlarida serverlarni boshqarish talab etilmaydi, biroq xodimlarga ortiqcha huquq berish yoki fayllarni ommaga ("Anyone with the link") ochiq qoldirish kompaniya maxfiy ma'lumotlarining sizib chiqishiga (Data Leakage) sabab bo'ladi.
+      </p>
+      <div class="note-box">
+        <strong>Vazifa:</strong> Korporativ ma'lumotlar tuzilmasini yaratish, "Eng kam imtiyoz" (Least Privilege) tamoyili bo'yicha ruxsatlarni cheklash va hisobdagi uchinchi tomon dasturlari hamda sessiyalarni audit qilish.
+      </div>
+    </section>
+
+    <!-- 1-Topshiriq -->
+    <section>
+      <h2>1-Qadam: Korporativ Muhit Simulyatsiyasi</h2>
+      <p>Google Drive profilingizda kompaniya bo'limlariga o'xshash quyidagi papkalar iyerarxiyasini yarating:</p>
+
+      <div class="folder-tree">
+        📁 Kompaniya_Infratuzilmasi/<br>
+        ├── 📁 01_Umumiy_Qoidalar/ (Barcha xodimlar uchun)<br>
+        ├── 📁 02_Loyiha_Kodlari/ (Dasturchilar va muhandislar uchun)<br>
+        └── 📁 03_Buxgalteriya_Maxfiy/ (Faqat rahbar va bosh hisobchi uchun)
+      </div>
+      <p>Har bir papka ichiga bittadan ixtiyoriy <code>.txt</code> yoki Google Docs hujjati yarating (masalan, <code>qoidalar.txt</code>, <code>kod.txt</code>, <code>moliya.txt</code>).</p>
+    </section>
+
+    <!-- 2-Topshiriq -->
+    <section>
+      <h2>2-Qadam: Ruxsatlarni Cheklash (IAM Sozlash)</h2>
+      <p>Guruhdosh sherigingizning yoki o'zingizning ikkinchi Google pochtangiz uchun ruxsatlarni quyidagi qat'iy qoidalar bo'yicha taqsimlang:</p>
+
+      <div class="step-card">
+        <h3><span class="step-num">A</span> 01_Umumiy_Qoidalar papkasi (Viewer)</h3>
+        <ul>
+          <li>Foydalanuvchiga faqat <strong>"Viewer" (Ko'ruvchi)</strong> ruxsatini bering.</li>
+          <li><strong>Xavfsizlik cheklovi:</strong> Papka ulanish sozlamalari (tishli g'ildirakcha)ga kirib, <em>"Ko'ruvchilar va sharhlovchilar yuklab olish, chop etish va nusxalash huquqiga ega"</em> (Viewers and commenters can see the option to download, print, and copy) belgisini olib tashlang.</li>
+        </ul>
+      </div>
+
+      <div class="step-card">
+        <h3><span class="step-num">B</span> 02_Loyiha_Kodlari papkasi (Editor)</h3>
+        <ul>
+          <li>Foydalanuvchiga <strong>"Editor" (Tahrirlovchi)</strong> ruxsatini bering.</li>
+          <li><strong>Xavfsizlik cheklovi:</strong> U boshqa begona shaxslarni ushbu papkaga taklif qila olmasligi uchun <em>"Tahrirlovchilar ruxsatlarni o'zgartirishi va ulashishi mumkin"</em> (Editors can change permissions and share) belgisini olib tashlang.</li>
+        </ul>
+      </div>
+
+      <div class="step-card">
+        <h3><span class="step-num">C</span> 03_Buxgalteriya_Maxfiy papkasi (Restricted)</h3>
+        <ul>
+          <li>Ushbu papka <strong>hech kim bilan ulashilmaydi</strong>. "General access" faqat <strong>Restricted (Cheklangan)</strong> holatida bo'lishi shart.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3-Topshiriq: Audit -->
+    <section>
+      <h2>3-Qadam: Profil Xavfsizligi Auditi (Google Security)</h2>
+      <p>Brauzerda <a href="https://myaccount.google.com/security" target="_blank" style="color: var(--primary); font-weight: 600;">myaccount.google.com/security</a> sahifasiga kiring va quyidagi 3 ta kritik nuqtani tekshiring:</p>
+
+      <ul class="checklist">
+        <li class="checklist-item">
+          <input type="checkbox" id="chk-mfa">
+          <label for="chk-mfa">
+            <strong>2-Step Verification (Ikki bosqichli autentifikatsiya / MFA)</strong>
+            <p>Parol fosh bo'lganda ham tizimga kirishni to'suvchi ikkinchi omil yoqilganligini tasdiqlang.</p>
+          </label>
+        </li>
+        <li class="checklist-item">
+          <input type="checkbox" id="chk-dev">
+          <label for="chk-dev">
+            <strong>Your devices (Faol sessiyalar va qurilmalar auditi)</strong>
+            <p>Sizga tegishli bo'lmagan, eski yoki foydalanilmayotgan telefon/noutbuklar sessiyalarini o'chirib yuboring (Sign out).</p>
+          </label>
+        </li>
+        <li class="checklist-item">
+          <input type="checkbox" id="chk-app">
+          <label for="chk-app">
+            <strong>Third-party apps with account access (Tashqi dasturlar auditi)</strong>
+            <p>Hisobingizga ulangan notanish o'yinlar, botlar yoki xizmatlarning kirish huquqini (Access Token) bekor qiling.</p>
+          </label>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Hisobot Generatori -->
+    <section class="report-card">
+      <h2>📋 Amaliy Ish Hisobotini Shakllantirish</h2>
+      <p>Talaba quyidagi maydonlarni to'ldirib, o'z hisobotini ko'rib chiqishi va chop etishi mumkin:</p>
+
+      <div class="form-group">
+        <label>Talabaning F.I.Sh:</label>
+        <input type="text" id="student-name" placeholder="Masalan: Karimov Jasur">
+      </div>
+
+      <div class="form-group">
+        <label>Guruh raqami:</label>
+        <input type="text" id="student-group" placeholder="Masalan: 412-21">
+      </div>
+
+      <div class="form-group">
+        <label>Audit Xulosasi (Topilgan kamchiliklar va kiritilgan o'zgartirishlar):</label>
+        <textarea id="student-notes" rows="4" placeholder="Masalan: 01-papkada yuklab olish huquqi olib tashlandi, 2FA sozlandi va 1 ta eski qurilma sessiyasi o'chirildi..."></textarea>
+      </div>
+
+      <button class="btn" onclick="generateReport()">Hisobotni Ko'rish / Chop Etish</button>
+
+      <div id="preview-area">
+        <h3 style="border-bottom: 2px solid #000; padding-bottom: 0.5rem; margin-top: 0;">SaaS IAM Laboratoriya Hisoboti</h3>
+        <p><strong>Talaba:</strong> <span id="out-name"></span> | <strong>Guruh:</strong> <span id="out-group"></span></p>
+        <p><strong>Topshiriq:</strong> SaaS tizimlarida Least Privilege tamoyili va hisob auditi.</p>
+        <div style="background: #f1f5f9; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+          <strong>Bajarilgan audit xulosasi:</strong>
+          <p id="out-notes" style="margin-top: 0.5rem; white-space: pre-wrap;"></p>
+        </div>
+        <p><em>Eslatma: Talaba ushbu hisobotga papka sozlamalari va Google Security sahifasidan olingan 3 ta skrinshotni ilova qilishi shart.</em></p>
+        <button class="btn" style="margin-top: 1rem;" onclick="window.print()">Chop etish (PDF saqlash)</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Axborot xavfsizligi va bulutli xizmatlar fani bo'yicha laboratoriya yo'riqnomasi</p>
+  </footer>
+
+  <script>
+    function generateReport() {
+      const name = document.getElementById('student-name').value.trim();
+      const group = document.getElementById('student-group').value.trim();
+      const notes = document.getElementById('student-notes').value.trim();
+
+      if (!name || !group || !notes) {
+        alert("Iltimos, barcha maydonlarni to'ldiring!");
+        return;
+      }
+
+      document.getElementById('out-name').innerText = name;
+      document.getElementById('out-group').innerText = group;
+      document.getElementById('out-notes').innerText = notes;
+
+      document.getElementById('preview-area').style.display = 'block';
+      document.getElementById('preview-area').scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
